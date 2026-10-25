@@ -21,8 +21,8 @@
       "patterns": [
         {
           "name": "keyword.other.rosi",
-          "match": "\\b(forall|type|import|let|in|∀)\\b"
-        }
+          "match": "\\b(forall|exists|type|import|let|in|∀|∃)\\b"
+        } 
       ]
     },
     "strings": {
