@@ -6,6 +6,7 @@ VLC Language Support for Rosi
 
 - Syntax Highlighting for the Rosi language
 
+
 ## Future Features (Pending Development Funding)
 
 We are seeking funding to develop the following additional features. If you are interested in funding this project, please place cash in a letter-sized manila envelope and duct tape it to the door of room 1, Jessup Hall, The University of Iowa.
@@ -26,3 +27,22 @@ npx vsce login clc-iowa
 ```shell
 npm run publish-ext
 ```
+
+## Requirements
+
+- See `package.json` for minimum required VSCode version.
+
+### Optional
+
+- `Unicode Latex` extension to allow insertion of Unicode symbols.
+  -- add `"rosi"` to the `"unicode-latex.extensions"` array in settings.
+    ```json
+    "unicode-latex.extensions": ["plaintext", "markdown", "coq", "rosi"]
+    ```
+
+
+## Release Notes
+
+### 0.3.0
+
+Migrate extension to TypeScript, based on `yeoman` template.
