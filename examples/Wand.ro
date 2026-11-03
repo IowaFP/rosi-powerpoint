@@ -1,3 +1,5 @@
+import Ro.Base
+
 -- Examples
 --
 -- Comments are Haskell-style line comments
@@ -22,52 +24,60 @@
 wand0 : forall x y z : R[*], t : *. x + y ~ z, {'l := t} < z => Pi x -> Pi y -> t
   -- Notes: label constants have an initial quote
   -- Records are `Pi z`; I guess variants are `Sigma z`.  (Unicode? still sucks for GHC on Windows)
-wand0 = /\ x y z : R[*], t : *. \ m : Pi x, n : Pi y.
-          prj [{'l := t}] [z] ((++) [x] [y] [z] m n) / #'l
+wand0 = \(@x @y @z : R[*]) (@t : *) (m : Pi x) (n : Pi y).
+          prj @{'l := t} @z ((++) @x @y @z m n) :/ 'l
   -- Not sure about punning singletons: Do we need to distinguish between the
   -- syntax for singleton #T and the type T?
 
 -- Should be able to infer type arguments:
 
 wand1 : forall x y z : R[*], t : *. x + y ~ z, {'l := t} < z => Pi x -> Pi y -> t
-wand1 = /\ x y z : R[*], t : * . \ m : Pi x, n : Pi y.
-          prj (m ++ n) / #'l
+wand1 = \(@x @y @z : R[*]) (@t : *) (m : Pi x) (n : Pi y).
+          prj (m ++ n) :/ 'l
 
--- Should be able to infer the presence of type abstractions from the type signature:
-
-
--- Actually, how did I ever think that `x` and `y` were in scope in the type annotations on `m` and `n`?
-
+-- Should I be able to infer the presence of type abstractions from the type signature?
 -- wand2 : forall x y z : R[*], t : *. x + y ~ z, {'l := t} < z => Pi x -> Pi y -> t
--- wand2 = \ m : Pi x, n : Pi y. prj (m ++ n) / #'l
+-- wand2 = \ m : Pi x, n : Pi y. prj (m ++ n) :/ #'l
 
 -- Can infer types of function arguments:
-
 wand3 : forall x y z : R[*], t : *. x + y ~ z, {'l := t} < z => Pi x -> Pi y -> t
-wand3 = \ m n. prj (m ++ n) / #'l
-
--- Not convinced about these next two:
-
--- Unbound variables in label position are inferred to be symbols:
-
--- wand4 : forall x y z : R[*], t : *. x + y ~ z, {l := t} < z => Pi x -> Pi y -> t
--- wand4 = \ m n. prj (m ++ n) / l
+wand3 = \ m n. prj (m ++ n) :/ 'l
 
 -- Can infer kinds?
 
 wand5 : forall x y z t. x + y ~ z, {'l := t} < z => Pi x -> Pi y -> t
-wand5 = \ m n. prj (m ++ n) / #'l
+wand5 = \ m n. prj (m ++ n) :/ 'l
 
--- Automatically generalize undeclared variables, in alphabetical order. (Note
--- interaction with #4?)
+-- Automatically generalize undeclared variables, in alphabetical order...
 
--- wand6 : x + y ~ z, {l := t} < z => Pi x -> Pi y -> t
--- wand6 = \ m n. prj (m ++ n) / l
+wand6 : x + y ~ z, {'l := t} < z => Pi x -> Pi y -> t
+wand6 = \ m n. prj (m ++ n) :/ 'l
+
+-- Have first-class labels
+
+wand7 : x + y ~ z, {l := t} < z => #l -> Pi x -> Pi y -> t
+wand7 = \l m n. prj (m ++ n) :/ l
+
+-- And syntax for selection
+
+wand8 : x + y ~ z, {l := t} < z => #l -> Pi x -> Pi y -> t
+wand8 = \l m n. (m ++ n).l
+
+-- And syntax for plusses...
+
+wand9 : {l := t} < x + y => #l -> Pi x -> Pi y -> t
+wand9 = \l m n. (m ++ n).l
 
 -- Let's dualize the above
 
-dnaw : forall x y z t u. x + y ~ z, {'l := t} < z => (Sigma x -> u) -> (Sigma y -> u) -> t -> u
-dnaw = \ r s x. (r | s) (inj (#'l := x))
+dnaw : x + y ~ z, {'l := t} < z => (Sigma x -> u) -> (Sigma y -> u) -> t -> u
+dnaw = \ r s x. (r | s) ('l: x)
 
-dnawHO : forall x y z t u. x + y ~ z, {'l := t} < z => (Sigma x u -> u) -> (Sigma y u -> u) -> t u -> u
-dnawHO = \ f g x. (f | g) (inj (#'l := x))
+dnawHO : x + y ~ z, {'l := t} < z => (Sigma x u -> u) -> (Sigma y u -> u) -> t u -> u
+dnawHO = \ f g x. (f | g) ('l: x)
+
+dnaw1 : x + y ~ z, {l := t} < z => #l -> (Sigma x -> u) -> (Sigma y -> u) -> t -> u
+dnaw1 = \l f g x. (f | g) (l: x)
+
+dnaw2 : {l := t} < x + y => #l -> (Sigma x -> u) -> (Sigma y -> u) -> t -> u
+dnaw2 = \l f g x. (f | g) (l: x)

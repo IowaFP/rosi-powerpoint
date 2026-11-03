@@ -1,0 +1,46 @@
+import Ro.Base, Ro.Xr, Data.Functor, Control.Monad, Data.Nat, Data.Tuple
+
+-- data Free g a = Ret a | Con (g (Free g a))
+
+type FreeF : R[* -> *] -> * -> (* -> *)
+type FreeF = Sigma { 'Ret := \g a v. a, 'Con := \g a v. Sigma g v }
+
+type Free : R[* -> *] -> * -> *
+type Free = \g a. Mu (FreeF g a)
+
+runFree : forall a. Free {} a -> a
+runFree = case #'Ret id
+        | case #'Con impossible
+
+--
+
+functorFree : forall g : R[* -> *]. Pi (Functor g) -> Functor (Free g)
+functorFree = \d f. (fix (\rec.
+              ( case #'Ret (\a. con #'Ret (f a))
+              | case #'Con (\x. con #'Con (fmapS d rec x))
+              )))
+
+--
+
+pureFree : forall g a. a -> Free g a
+pureFree = con #'Ret
+
+bindFree : forall g : R[* -> *]. Pi (Functor g) -> (forall a b. Free g a -> (a -> Free g b) -> Free g b)
+bindFree = \d. fix (\rec m k. match m
+                              ( case #'Ret k
+                              | case #'Con (\f. con #'Con (fmapS d (\m. rec m k) f))))
+
+apFree : forall g : R[* -> *]. Pi (Functor g) -> (forall a b. Free g (a -> b) -> Free g a -> Free g b)
+apFree = \d mf mx. bindFree d mf (\f. bindFree d mx (\x. pureFree (f x)))
+
+applicativeFree : forall g : R[* -> *]. Pi (Functor g) -> Applicative (Free g)
+applicativeFree = \d. ( #'Functor := functorFree d
+                      , #'pure := pureFree
+                      , #'ap := apFree d)
+
+monadFree : forall g : R[* -> *]. Pi (Functor g) -> Monad (Free g)
+monadFree = \d. ( #'Applicative := applicativeFree d
+                , #'bind := bindFree d)
+
+
+

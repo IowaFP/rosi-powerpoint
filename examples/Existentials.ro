@@ -1,0 +1,103 @@
+import Ro.Base, Data.Tuple, Data.Nat
+
+-- Comparer over existentially hidden key type, as required for orderBy
+type Comparer : * -> *
+type Comparer = \t. exists v. (t -> v, Compare v)
+
+compareField : {l := t} < z => #l -> Compare t -> Comparer (Pi z)
+compareField l f = (.l, f)
+
+compare : Comparer t -> Compare t
+compare p x y = p.'2 (p.'1 x) (p.'1 y)
+
+compared  : Cmp
+compared  = compare (.'1, compN) (1, 2) (2, 1)
+
+compared' : Cmp
+compared' = compare (.'2, compN) (1, 2) (2, 1)
+
+comparedHO  : Cmp
+comparedHO  = compare (compareField '1 compN) (1, 2) (2, 1)
+
+comparedHO' : Cmp
+comparedHO' = compare (compareField '2 compN) (1, 2) (2, 1)
+
+-- Just playing with syntax
+
+type Bogus : * -> *
+type Bogus = \t. exists u v. Pi {'1 := t -> u, '2 := t -> v, '3 := u -> v -> Bool}
+
+bogoid : Bogus t -> t -> Bool
+bogoid @t (@!u p : Bogus t) x = p.'3 (p.'1 x) (p.'2 x)
+
+bogoid2 @t (p : Bogus t) x = p.'3 (p.'1 x) (p.'2 x)
+
+-- Can make implicit existential explicit...
+
+compareField' : forall z. {l := t} < z => #l -> Compare t -> Comparer (Pi z)
+compareField' @z l f = pack #(\v. (Pi z -> v, Compare v)) (.l, f)
+
+-- Let's use some constraints
+
+type Subrecord : R[*] -> *
+type Subrecord z = exists y. y < z => Pi y
+
+updateS : Subrecord z -> Pi z -> Pi z
+updateS r s = upd r s
+
+updated = updateS ('1 := 2) ('1 := 1, '2 := 2)
+
+-- Typing fails, as it should: '3 is not contained in {'1 := Nat, '2 := Nat}
+--
+-- updated' : Pair Nat Nat
+-- updated' = updateS ('3 := 2) ('1 := 1, '2 := 2)
+
+-- Variable escape?
+--
+-- Does generate an error, as would be hoped, but (unfortunately) is an internal
+-- error.
+
+-- escape @t (p : Comparer t) = p.'1
+
+-- compare' : forall t. Comparer t -> Compare t
+compare' @t (@!v p : Comparer t) (x y : t) = p.'2 (p.'1 x : v) (p.'1 y : v)
+compare'' @t (p : Comparer t) (x y : t) = p.'2 (p.'1 x) (p.'1 y)
+
+-- Okay this is dumb
+
+type Object : R[*] -> *
+type Object y = exists z. y < z => Pi z
+
+fullName : Object {'first := String, 'last := String} -> String
+fullName p = p.'first ^ " " ^ p.'last
+
+formalName : Object {'title := String, 'first := String, 'last := String} -> String
+formalName p = p.'title ^ " " ^ fullName p
+
+name = formalName ('title := "Dr", 'first := "Garrett", 'last := "Morris", 'office := "1E Jessup Hall")
+
+prof : Object {'title := String, 'first := String, 'last := String, 'office := String}
+prof = ('title := "Dr", 'first := "Garrett", 'last := "Morris", 'office := "1E Jessup Hall")
+
+name' = formalName prof
+
+-- Branching and existentials
+
+type Branch : L -> * -> R[*] -> *
+type Branch l t z = exists. {l := t} < z => Pi z
+
+type EitherOf : L -> L -> * -> R[*] -> *
+type EitherOf k l t z =
+  Sigma { 'Left  := Branch k t z,
+          'Right := Branch l t z }
+
+-- oops : EitherOf 'A 'B Unit t -> Unit
+-- oops = 'Left: r  -> r.'A
+--      | 'Right: r -> r.'B
+
+oops : EitherOf 'A 'B Unit t -> Unit
+oops @t = 'Left:  (r : Branch 'A Unit t) -> r.'A
+        | 'Right: (r : Branch 'B Unit t) -> r.'B
+
+whoops = (oops ('Left: ('A := tt, 'B := 0)), oops ('Right: ('A := 0, 'B := tt)))
+

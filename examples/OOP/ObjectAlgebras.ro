@@ -1,0 +1,42 @@
+import Ro.Base , Ro.Xr , Ro.Show , Data.Nat , Data.Tuple , Data.List
+
+--------------------------------------------------------------------------------
+-- An "object algebra" is an F-Algebra in disguise. 
+--   (Defined in Ro.Xr)
+--   type FAlg : (* -> *) -> * -> *
+--   type FAlg = \ f a. f a -> a
+-- An F-Algebra of type F a -> a usually assumes F to be a sum
+--   F(x) = t1 + t2 + ... + tn
+-- and hence an F-Algebra is of the form
+--   (t1 + t2 + ... + tn) -> a.
+-- Object algebras observe that the type above is isomorphic to a product of arrows:
+--   (t1 + t2 + ... + tn) -> a \simeq (t1 -> a) * (t2 -> a) * ... * (tn -> a)
+-- An example F-Algebra for arithmetric expressions might have type:
+--   f : forall a. Sigma {'lit := String , 'add := (a , a)} -> a
+-- And an example object algebra:
+--   interface g<a> {
+--      a lit(s : String); 
+--      a add(x : a , y : a);
+--   }
+-- We see clearly that `f` has type 
+--   FAlg (Sigma {'lit := \x. String , 'add := \ x. (x , x)}) a 
+-- and `g` has type:
+--   Pi ({'lit := \x. String , 'add := \ x. (x , x)} -> a) 
+--
+-- Rosi's generic programming capabilities make it very easy to translate
+-- from an F-Algebra to an object-algebra and back again. it's just reify and reflect!
+-- This is also demonstrated (as metatheory) in Downen et al's "Codata in Action":
+--   - https://www.microsoft.com/en-us/research/wp-content/uploads/2020/01/CoDataInAction.pdf?msockid=204eae218676650527f9bd2e871464e2
+
+toObjectAlg : forall z : R[ * -> * ], t : *. (Sigma z t -> t) -> Pi (z t -> t)
+toObjectAlg = reify 
+
+toFAlg : forall z : R[ * -> * ], t : *.  Pi (z t -> t) -> Sigma z t -> t
+toFAlg = reflect 
+
+-- I am not sure there is much more to say. Two thoughts:
+-- - there is quite a lot one can do with more exotic algebras.
+--   Have these been reproduced in the object algebra / OOP literature?
+-- - Conversely, what nonsense in the object algebra / OOP literature
+--   can we trivialize with Rosi?
+-- I do wonder if there is a functional pearl buried here.

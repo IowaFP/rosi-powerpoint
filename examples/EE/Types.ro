@@ -4,20 +4,20 @@ import Ro.Base, Ro.Xr, Data.Functor, Data.List, Data.Nat, Data.Tuple
 -- Types
 
 type BoolF : R[* -> *]
-type BoolF = { 'BConst := (\t. Bool)
-             , 'If := (\t. Triple t t t) }
+type BoolF = { 'BConst := \t. Bool
+             , 'If := \t. Triple t t t }
 
 type ArithF : R[* -> *]
-type ArithF = { 'IConst := (\t. Nat)
-              , 'Plus := (\t. Pair t t) }
+type ArithF = { 'IConst := \t. Nat
+              , 'Plus := \t. Pair t t }
 
 type LamF : R[* -> *]
 type LamF = { 'Var := Const Nat
             , 'Lam := Id
-            , 'App := (\t. Pair t t) }
+            , 'App := \t. Pair t t }
 
 type RecF : R[* -> *]
-type RecF = { 'Fix := (\t. t) }
+type RecF = { 'Fix := \t. t }
 
 -------------------------------------------------------------------------------
 -- Functors
@@ -26,64 +26,112 @@ functorId : Functor Id
 functorId = id
 
 functorConst : forall t. Functor (Const t)
-functorConst = \f. id
+functorConst f = id
 
 functorTwo : Functor (\t. Pair t t)
-functorTwo = \f x. pair (f (sel x #'1)) (f (sel x #'2))
+functorTwo f x = pair (f x.'1) (f x.'2)
 
 functorThree : Functor (\t. Triple t t t)
-functorThree = \f x. triple (f (sel x #'1)) (f (sel x #'2)) (f (sel x #'3))
+functorThree f x = triple (f x.'1) (f x.'2) (f x.'3)
 
-functorBool : Pi (Functor BoolF)
-functorBool = (#'BConst := functorConst) ++ (#'If := functorThree)
+functorBool : Π (Functor BoolF)
+functorBool = ('BConst := functorConst, 'If := functorThree)
 
-functorArith : Pi (Functor ArithF)
-functorArith = (#'IConst := functorConst) ++ (#'Plus := functorTwo)
+functorArith : Π (Functor ArithF)
+functorArith = ('IConst := functorConst, 'Plus := functorTwo)
 
-functorLam : Pi (Functor LamF)
-functorLam = (#'Var := functorConst) ++ (#'Lam := functorId)
-           ++ (#'App := functorTwo)
+functorLam : Π (Functor LamF)
+functorLam = ('Var := functorConst, 'Lam := functorId, 'App := functorTwo)
 
-functorRec : Pi (Functor RecF)
-functorRec = #'Fix := functorId
+functorRec : Π (Functor RecF)
+functorRec = 'Fix := functorId
+
+-------------------------------------------------------------------------------
+-- Shows
+
+tupleNames = ('1 := "1", '2 := "2", '3 := "3")
+
+showTuple : forall t : *, z : R[*].
+            Fold (Const t z), Const String z < {'1 := String, '2 := String, '3 := String} =>
+            (t -> String) -> Π (Const t z) -> String
+showTuple = \d. showP ('names := prj tupleNames, 'shows := every d)
+
+showBoolF : forall t. Show t -> ShowR (BoolF t)
+showBoolF = \d. ('names := ('BConst := "BConst", 'If := "If"),
+                 'shows := ('BConst := showBool, 'If := showTuple d))
+
+showArithF : forall t. Show t -> ShowR (ArithF t)
+showArithF = \d. ('names := ('IConst := "IConst", 'Plus := "Plus"),
+                  'shows := ('IConst := showNat, 'Plus := showTuple d))
+
+showLamF : forall t. Show t -> ShowR (LamF t)
+showLamF = \d. ('names := ('Var := "Var", 'Lam := "Lam", 'App := "App"),
+                'shows := ('Var := showNat, 'Lam := d, 'App := showTuple d))
+
+showRecF : forall t. Show t -> ShowR (RecF t)
+showRecF = \d. ('names := ('Fix := "Fix"), 'shows := ('Fix := d))
 
 -------------------------------------------------------------------------------
 -- Shorthand
 
+type ABF : R[* -> *]
+type ABF = ArithF + BoolF
+
+type ALF : R[* -> *]
+type ALF = ArithF + LamF
+
 type LBF : R [* -> *]
-type LBF = { 'Var := (\t. Nat), 'Lam := Id, 'App := (\t. Pair t t),
-             'BConst := (\t. Bool), 'If := (\t. Triple t t t) }
+type LBF = LamF + BoolF
 
 type ABLF : R[* -> *]
-type ABLF = { 'BConst := (\t. Bool), 'If := (\t. Triple t t t)
-            , 'IConst := (\t. Nat), 'Plus := (\t. Pair t t)
-            , 'Var := Const Nat, 'Lam := Id, 'App := (\t. Pair t t) }
+type ABLF = ABF + LamF
 
 type AllF : R [* -> *]
-type AllF = { 'Var := (\t. Nat), 'Lam := Id, 'App := (\t. Pair t t),
-              'BConst := (\t. Bool), 'If := (\t. Triple t t t),
-              'IConst := (\t. Nat), 'Plus := (\t. Pair t t),
-              'Fix := (\t. t) }
+type AllF = ABLF + RecF
 
-functorLBF : Pi (Functor LBF)
+functorLBF : Π (Functor LBF)
 functorLBF = functorBool ++ functorLam
 
-functorABLF : Pi (Functor ABLF)
+functorALF : Π (Functor ALF)
+functorALF = functorArith ++ functorLam
+
+functorABLF : Π (Functor ABLF)
 functorABLF = functorArith ++ functorLBF
 
-functorAll : Pi (Functor AllF)
+functorAll : Π (Functor AllF)
 functorAll = functorArith
           ++ functorLBF
           ++ functorRec
 
+showLBF : forall t. Show t -> ShowR (LBF t)
+showLBF = \d. showRCat (showBoolF d) (showLamF d)
+
+showABLF : forall t. Show t -> ShowR (ABLF t)
+showABLF = \d. showRCat (showArithF d) (showLBF d)
+
+showAllF : forall t. Show t -> ShowR (AllF t)
+showAllF = \d. showRCat (showABLF d) (showRecF d)
+
+showExpr : forall z : R[* -> *]. (forall t. Show t -> ShowR (z t)) -> Show (μ (Σ z))
+showExpr = \d. fix (\showExpr e. showS (d showExpr) e)
+
 -------------------------------------------------------------------------------
 -- Some expressions
 
-xpId : Mu (Sigma AllF)
-xpId = rcon #'Lam (rcon #'Var zero)
+xΠd : μ (Σ AllF)
+xΠd = 'Lam: ('Var: 0)
 
-xpConst : Mu (Sigma AllF)
-xpConst = rcon #'Lam (rcon #'Lam (rcon #'Var one))
+shId : String
+shId = showExpr showAllF xΠd
 
-xpNot : Mu (Sigma AllF)
-xpNot = rcon #'Lam (rcon #'If (triple (rcon #'Var zero) (rcon #'BConst False) (rcon #'BConst True)))
+xpConst : μ (Σ AllF)
+xpConst = 'Lam: ('Lam: ('Var: 1))
+
+shConst : String
+shConst = showExpr showAllF xpConst
+
+-- xpNot : μ (Σ ABLF)
+-- xpNot = 'Lam: ('If: (triple ('Var: zero) ('BConst: False) ('BConst: True)))
+
+-- shNot : String
+-- shNot = showExpr showABLF xpNot
