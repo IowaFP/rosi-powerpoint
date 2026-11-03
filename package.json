@@ -3,7 +3,7 @@
   "publisher": "clc-iowa",
   "displayName": "Rosi",
   "description": "Rosi language support for vscode",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "repository": "https://github.com/IowaFP/rosi-vscode",
   "engines": {
     "vscode": "^1.103.0"

@@ -44,5 +44,6 @@ npm run publish-ext
 ### 0.3.0
 
 - Migrate extension to TypeScript, based on `yeoman` template.
+- Support more unicode symbols.
 - Prompt user to install [Unicode Latex](https://marketplace.visualstudio.com/items?itemName=oijaz.unicode-latex) or to enable unicode input, if already installed.
 
