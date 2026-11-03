@@ -5,6 +5,7 @@ VLC Language Support for Rosi
 ## Features
 
 - Syntax Highlighting for the Rosi language
+- Unicode symbol insertion supported via [Unicode Latex](https://marketplace.visualstudio.com/items?itemName=oijaz.unicode-latex) extension
 
 
 ## Future Features (Pending Development Funding)
@@ -13,6 +14,15 @@ We are seeking funding to develop the following additional features. If you are 
 
 - Semantic Highlighting
 - Language Server Protocol (LSP) Support
+
+## Enabling Unicode Support
+
+To allow the user to insert Unicode symbols by typing latex identifiers (e.g. to replace `\Pi` with `Π`), follow these steps:
+
+  1. Install the [Unicode Latex](https://marketplace.visualstudio.com/items?itemName=oijaz.unicode-latex) extension. (id = `unicode-latex`)
+  2. Run the command `Rosi: Enable Unicode Support` to enable the extension in Rosi files.
+  
+  *Note: The command adds `"rosi"` to the array `"unicode-latex.extensions"` in your user settings. If you only want to add it for a single workspace, edit the settings for that workspace manually.*
 
 ## Publishing the Extension
 
@@ -28,21 +38,11 @@ npx vsce login clc-iowa
 npm run publish-ext
 ```
 
-## Requirements
-
-- See `package.json` for minimum required VSCode version.
-
-### Optional
-
-- `Unicode Latex` extension to allow insertion of Unicode symbols.
-  -- add `"rosi"` to the `"unicode-latex.extensions"` array in settings.
-    ```json
-    "unicode-latex.extensions": ["plaintext", "markdown", "coq", "rosi"]
-    ```
-
 
 ## Release Notes
 
 ### 0.3.0
 
-Migrate extension to TypeScript, based on `yeoman` template.
+- Migrate extension to TypeScript, based on `yeoman` template.
+- Prompt user to install [Unicode Latex](https://marketplace.visualstudio.com/items?itemName=oijaz.unicode-latex) or to enable unicode input, if already installed.
+

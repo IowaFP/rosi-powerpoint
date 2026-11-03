@@ -45,21 +45,27 @@
     ],
     "commands": [
       {
-        "command": "rosi-vscode.helloWorld",
-        "title": "Hello World",
+        "command": "rosi-vscode.enableUnicodeInputUser",
+        "title": "Enable Unicode Input (User)",
+        "category": "Rosi"
+      },
+      {
+        "command": "rosi-vscode.enableUnicodeInputWorkspace",
+        "title": "Enable Unicode Input (Workspace)",
         "category": "Rosi"
       }
     ]
   },
   "devDependencies": {
-    "@types/vscode": "^1.144.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "24.x",
-    "typescript-eslint": "^8.61.1",
-    "eslint": "^10.5.0",
-    "typescript": "^6.0.3",
+    "@types/vscode": "^1.144.0",
     "@vscode/test-cli": "^0.0.15",
-    "@vscode/test-electron": "^3.0.0"
+    "@vscode/test-electron": "^3.0.0",
+    "eslint": "^10.5.0",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1"
   },
   "overrides": {
     "diff": "^8.0.4",
