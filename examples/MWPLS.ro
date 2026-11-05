@@ -1,0 +1,83 @@
+-- ----------------------------------------------------------------------------
+
+row Point = {'x : Int, 'y : Int} 
+p : Π Point 
+p = ('x := 1, 'y := 1) 
+
+type ⊤ = Π {}
+tt : ⊤
+tt = prj ('foo := λ x. x)
+
+-- ----------------------------------------------------------------------------
+
+row Bool = {'True : ⊤, 'False : ⊤}
+true : Σ Bool 
+true = inj ('True := tt) 
+
+-- ----------------------------------------------------------------------------
+Σ {'True : ⊤, 'False : ⊤} → t 
+Π {'True : ⊤ → t, 'False : ⊤ → t} 
+Π (Bool → t)
+reify   : (Σ Bool → t) → (Π Bool → t)
+reflect : (Π Bool → t) → (Σ Bool → t)
+
+-- ----------------------------------------------------------------------------
+
+x : (λ α. α) Int
+x = conv 1
+
+-- ----------------------------------------------------------------------------
+
+type Functor : (* → *) → *
+type Functor f = ∀ a b. (a → b) → f a → f b
+
+-- ----------------------------------------------------------------------------
+
+fmapΣ : ∀ z : R[* → *]. Π (Functor $ z) → Functor (Σ z)
+
+fmapΣ : ∀ z : R[* → *]. 
+        Π ((λ f. ∀ a b. 
+            (a → b) → f a → f b) $ z) → 
+        ∀ a b. (a → b) → (Σ z) a → (Σ z) b
+
+(Σ z) a ≡ Σ ((λ f. f a) $ z)      
+
+row tree : R[* → *] 
+Row tree = {'Node    : λ t. Nat, 
+             'Branch  : λ t. t × t}
+
+fmapΣ : ... → Σ ({'Node : const Nat, 'Branch : λ t. t × t} ? b)
+fmapΣ : ... → Σ ((λ f. f b) $ {'Node : const Nat, 'Branch : λ t. t × t})
+fmapΣ : ... → Σ {'Node : (λ f. f b) (const Nat), 'Branch : (λ f. f b) (λ t. t × t)}
+fmapΣ : ... → Σ {'Node : Nat, 'Branch : b × b}
+
+-- ----------------------------------------------------------------------------
+
+row _+_ : R[⋆] → R[⋆] → R[R[⋆]]
+row x + z = {l : ρ₁ , r : ρ₂}
+
+    {x : Int} + {x : Int}
+  = {l : {x : Int}, r : {x : Int}}
+
+  Σ (Π ({True : ⊤} + {False : ⊤}))
+= Σ (Π {l : {True : ⊤}, r : {False : ⊤}})
+= Σ {l : Π {True : ⊤}, r : Π {False : ⊤}}
+≃ Bool  
+
+-- ----------------------------------------------------------------------------
+
+type BoolF = R[⋆ → ⋆]
+type BoolF = 
+ {True : λ b. ⊤ , 
+  False : λ b. ⊤ , 
+  If : λ b. b × b × b , 
+  Or : λ b. b × b}  
+
+row Or : R[* → *]
+row Or = {'Or : λ b. b × b}
+desugarOr : μ (Σ BoolF) → μ (Σ (BoolF ∖ Or))
+
+  BoolF ∖ Or
+= {'T : λ b. ⊤, 
+   'F : λ b. ⊤, 
+   'If : λ b. b × b × b}

@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-  "name": "Rosi",
+  "name": "rosi",
   "patterns": [
     { "include": "#comments" },
     { "include": "#types" },
@@ -21,7 +21,7 @@
       "patterns": [
         {
           "name": "keyword.other.rosi",
-          "match": "\\b(forall|exists|type|import|let|in|∀|∃)\\b"
+          "match": "\\b(forall|exists|row|type|import|let|in|∀|∃)\\b"
         } 
       ]
     },
@@ -51,7 +51,15 @@
       ]
     },
     "types": {
-      "patterns": [{ "match": "(#'?\\w+?)\\b", "name": "string.quoted.unquoted.other.rosi" }]
+      "patterns": [
+        { 
+          "match": "(#'?\\w+?)\\b", 
+          "name": "string.quoted.unquoted.other.rosi"
+        },
+        {
+          "match": "\\b((?![R\\[])[A-Z]\\w*)|⊤|⊥\\b",
+          "name": "entity.name.type.rosi"
+        }]
     },
     "labels": {
       "patterns": [
@@ -66,7 +74,11 @@
         {
           "name": "constant.language.rosi",
           "match": "\\b(Pi|Sigma|Mu|Π|Σ|μ)\\b"
-        }
+        },
+        {
+          "name": "constant.numeric.rosi",
+          "match": "\\b\\d+(?:\\.\\d+)?\\b"
+        }        
       ]
     },
     "operators": {
@@ -75,7 +87,7 @@
           "name": "keyword.operator.rosi",
           "match": "[▹⇒→∖\\!\\$\\%\\&\\;\\+\\.\\/\\<\\>\\=\\?\\@\\^\\|\\-\\~\\*\\:\\\\]+"
         },
-        { "name": "keyword.operator.new.rosi", "match": "\\b(prj|inj|fix)\\b" },
+        { "name": "keyword.operator.new.rosi", "match": "\\b(prj|inj|fix|×|\\+|\\?|\\$)\\b" },
         { "name": "keyword.operator.prefix.rosi", "match": "\\Λ|λ" }
       ]
     }

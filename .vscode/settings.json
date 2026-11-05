@@ -7,5 +7,69 @@
 		"out": true // set this to false to include "out" folder in search results
 	},
 	// Turn off tsc task auto detection since we have the necessary tasks as npm scripts
-	"js/ts.tsc.autoDetect": "off"
+	"js/ts.tsc.autoDetect": "off",
+    "editor.tokenColorCustomizations": {
+            "textMateRules": [
+                {
+                    "name": "Rome - Reserved Operators",
+                    "scope": [
+                        "keyword.control.rosi",
+                        "constant.language.rosi",
+                        "keyword.other.rosi",
+                        "keyword.operator.prefix.rosi",
+                        "keyword.operator.new.rosi"
+                    ],
+                    "settings": {
+                        "foreground": "#B5E1FF",
+                        "fontStyle": "bold"
+                    }
+                },
+                {
+                    "name": "Rome - Types",
+                    "scope": [
+                        "entity.name.type.rosi",
+                        "support.type.rosi",
+                        "storage.type.rosi"
+                    ],
+                    "settings": {
+                        "foreground": "#F79646"
+                    }
+                },
+                {
+                    "name": "Rome - Labels",
+                    "scope": [
+                        "string.quoted.unquoted.other.rosi"
+                    ],
+                    "settings": {
+                        "foreground": "#FFCD00"
+                    }
+                },
+                {
+                    "name": "Rome - Literals and Constants",
+                    "scope": [
+                        "constant.numeric.rosi",
+                        "string.quoted.double.rosi",
+                        "constant.character.escape.rosi"
+                    ],
+                    "settings": {
+                        "foreground": "#BD472A"
+                    }
+                },
+                {
+                    "name": "Rome - All Else / Default Text",
+                    "scope": [
+                        "source.rome",
+                        "variable.other.rome"
+                    ],
+                    "settings": {
+                        "foreground": "#fdfdfd"
+                    }
+                }
+            ]
+    },
+    "editor.fontFamily": "'Consolas', monospace",
+    // "editor.fontSize": 28,
+    // "editor.lineHeight": 38,
+    "editor.semanticHighlighting.enabled": true
+
 }
