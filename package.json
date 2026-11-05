@@ -3,7 +3,7 @@
   "publisher": "clc-iowa",
   "displayName": "Rosi",
   "description": "Rosi language support for vscode",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "repository": "https://github.com/IowaFP/rosi-vscode",
   "engines": {
     "vscode": "^1.103.0"
@@ -54,7 +54,18 @@
         "title": "Enable Unicode Input (Workspace)",
         "category": "Rosi"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Rosi",
+      "type": "object",
+      "properties": {
+        "rosi.promptToEnableUnicodeLatex": {
+          "type": "boolean",
+          "default": true,
+          "description": "Prompt to Enable Unicode Latex on activation."
+        }
+      }
+    }
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",

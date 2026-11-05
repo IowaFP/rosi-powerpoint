@@ -1,9 +1,11 @@
 # Change Log
 
-All notable changes to the "rosi-vscode" extension will be documented in this file.
+## [0.3.0]
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+- Migrate extension to TypeScript, based on `yeoman` template.
+- Support more unicode symbols.
+- Prompt user to install [Unicode Latex](https://marketplace.visualstudio.com/items?itemName=oijaz.unicode-latex) or to enable unicode input, if already installed.
 
-## [Unreleased]
+## [0.3.1]
 
-- Initial release
+- Allow Unicode input notification to be suppressed with a setting.
